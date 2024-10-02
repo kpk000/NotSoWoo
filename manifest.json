@@ -1,17 +1,31 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Not So Woo",
+  "version": "1.0",
+  "description": "Auto test for Wooclap",
   "icons": {
     "16": "public/icon.png",
     "48": "public/icon.png",
     "128": "public/icon.png"
   },
-  "version": "1.0",
-  "description": "Auto test for Wooclap",
-  "permissions": ["webRequest", "webRequestBlocking", "activeTab"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "activeTab",
+    "https://app.wooclap.com/*",
+    "<all_urls>",
+    "webRequestAuthProvider",
+    "cookies"
+  ],
   "background": {
-    "service_worker": "background.js",
-    "scripts": ["background.js"]
-  }
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://app.wooclap.com/*"],
+      "js": ["content/wooclap.js"],
+      "run_at": "document_end"
+    }
+  ]
 }
