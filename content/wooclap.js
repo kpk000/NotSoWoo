@@ -56,7 +56,6 @@ const startSolving = async (question) => {
     if (currentQuestionText !== question) {
       currentQuestionText = question;
       if (currentTimeout) {
-        console.log("Clearing timeout"); //Debug
         clearTimeout(currentTimeout);
         currentTimeout = null;
       }
@@ -64,7 +63,6 @@ const startSolving = async (question) => {
 
     if (questions.some((q) => q.title === question)) {
       const answer = questions.find((q) => q.title === question);
-      console.log("Answer found:", answer); //Debug
       if (!answer) {
         throw new Error("No answer found");
       }
@@ -72,7 +70,6 @@ const startSolving = async (question) => {
       // See if is a test
       if (answer.choices && answer.choices.length > 0) {
         let correctChoices = answer.choices.filter((c) => c.isCorrect);
-        console.log(correctChoices); //Debug
         for (let correctChoice of correctChoices) {
           let answerText = correctChoice.choice;
           await solveTest(answerText);
@@ -154,29 +151,21 @@ const solveTest = async (answerText) => {
 };
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
-    if (mutation.type === "childList" || mutation.type === "attributes") {
+    if (mutation.type === "childList") {
       const h1Element = document.querySelector(H1_SELECTOR);
 
-      try {
-        if (h1Element && !processedH1s.has(h1Element.textContent)) {
-          processedH1s.add(h1Element.textContent);
+      if (h1Element && !processedH1s.has(h1Element.textContent)) {
+        // Agregar el h1 al conjunto de procesados
+        processedH1s.add(h1Element.textContent);
 
-          console.log(
-            "Se ha detectado un cambio en la pregunta:",
-            h1Element.textContent
-          ); //Debug
-          startSolving(h1Element.textContent);
-        }
-      } catch (e) {
-        console.log("Error:", e);
-        toastAnswerFound(false);
-        console.log("No se ha encontrado la respuesta");
+        startSolving(h1Element.textContent);
       }
     }
   });
 });
 
-const config = { attributes: true, childList: true, subtree: true };
+const config = { childList: true, subtree: true };
+
 window.addEventListener("message", function (event) {
   if (event.source !== window) return;
   if (
@@ -187,6 +176,12 @@ window.addEventListener("message", function (event) {
     if (data.questions) {
       questions.push(...data.questions);
       console.log(questions);
+      const h1Element = document.querySelector(H1_SELECTOR);
+      if (h1Element && !processedH1s.has(h1Element.textContent)) {
+        processedH1s.add(h1Element.textContent);
+
+        startSolving(h1Element.textContent);
+      }
       observer.observe(document.body, config); // Start observing the body
     }
   }
