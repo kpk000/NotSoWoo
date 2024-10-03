@@ -56,6 +56,7 @@ const startSolving = async (question) => {
     if (currentQuestionText !== question) {
       currentQuestionText = question;
       if (currentTimeout) {
+        console.log("Clearing timeout"); //Debug
         clearTimeout(currentTimeout);
         currentTimeout = null;
       }
@@ -63,6 +64,7 @@ const startSolving = async (question) => {
 
     if (questions.some((q) => q.title === question)) {
       const answer = questions.find((q) => q.title === question);
+      console.log("Answer found:", answer); //Debug
       if (!answer) {
         throw new Error("No answer found");
       }
@@ -70,6 +72,7 @@ const startSolving = async (question) => {
       // See if is a test
       if (answer.choices && answer.choices.length > 0) {
         let correctChoices = answer.choices.filter((c) => c.isCorrect);
+        console.log(correctChoices); //Debug
         for (let correctChoice of correctChoices) {
           let answerText = correctChoice.choice;
           await solveTest(answerText);
@@ -158,6 +161,7 @@ const observer = new MutationObserver((mutations) => {
         // Agregar el h1 al conjunto de procesados
         processedH1s.add(h1Element.textContent);
 
+        console.log("Se ha detectado un nuevo H1:", h1Element.textContent); // Debug
         startSolving(h1Element.textContent);
       }
     }
@@ -182,6 +186,7 @@ window.addEventListener("message", function (event) {
 
         startSolving(h1Element.textContent);
       }
+      console.log("Start observing body"); // Debug
       observer.observe(document.body, config); // Start observing the body
     }
   }
